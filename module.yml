@@ -1,0 +1,8 @@
+author: Bart Vanbrabant <bart@impera.io>
+license: Apache 2.0
+name: mongodb
+source: git@github.com:impera-io/mongodb
+version: 0.1b1
+requires:
+    std: git@github.com:impera-io/std, ">= 0.1"
+    ip: git@github.com:impera-io/ip, ">= 0.1"

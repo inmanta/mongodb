@@ -1,0 +1,32 @@
+"""
+    Copyright 2015 Impera
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+    Contact: bart@impera.io
+"""
+
+entity MongoDB extends ip::services::Server:
+    """
+        Set up a single mongodb server
+    """
+end
+
+implementation mongoServer for MongoDB:
+    pkg = std::Package(host=host, name="mongodb-server", state="installed")
+    svc = std::Service(host=host, name="mongod", state="running", onboot=true, requires=[pkg, cfg])
+    cfg = std::ConfigFile(host=host, path="/etc/mongodb.conf", requires=pkg, reload=true,
+                          content=std::template("mongodb/mongodb.conf.tmpl"))
+end
+
+implement MongoDB using mongoServer

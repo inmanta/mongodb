@@ -20,6 +20,7 @@ entity MongoDB extends ip::services::Server:
     """
         Set up a single mongodb server
     """
+    bool smallfiles=false
 end
 
 implementation mongoServerFedora for MongoDB:
@@ -36,5 +37,14 @@ implementation mongoServerEpel for MongoDB:
                           content=std::template("mongodb/mongodb_epel.conf.tmpl"))
 end
 
+implementation mongoServerUbuntu for MongoDB:
+    pkg = std::Package(host=host, name="mongodb-server", state="installed")
+    std::Package(host=host, name="mongodb-clients", state="installed")
+    svc = std::Service(host=host, name="mongodb", state="running", onboot=true, requires=[pkg, cfg])
+    cfg = std::ConfigFile(host=host, path="/etc/mongodb.conf", requires=pkg, reload=true,
+                          content=std::template("mongodb/mongodb_ubuntu.conf.tmpl"))
+end
+
 implement MongoDB using mongoServerFedora when std::familyof(host.os, "fedora")
 implement MongoDB using mongoServerEpel when std::familyof(host.os, "rhel")
+implement MongoDB using mongoServerUbuntu when std::familyof(host.os, "ubuntu")

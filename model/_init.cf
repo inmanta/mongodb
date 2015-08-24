@@ -21,12 +21,13 @@ entity MongoDB extends ip::services::Server:
         Set up a single mongodb server
     """
     bool smallfiles=false
+    ip::ip bindip="127.0.0.1"
 end
 
 implementation mongoServerFedora for MongoDB:
     pkg = std::Package(host=host, name="mongodb-server", state="installed")
     svc = std::Service(host=host, name="mongod", state="running", onboot=true, requires=[pkg, cfg])
-    cfg = std::ConfigFile(host=host, path="/etc/mongodb.conf", requires=pkg, reload=true,
+    cfg = std::ConfigFile(host=host, path="/etc/mongod.conf", requires=pkg, reload=true,
                           content=std::template("mongodb/mongodb.conf.tmpl"))
 end
 

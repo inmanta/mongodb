@@ -24,8 +24,21 @@ entity MongoDB extends ip::services::Server:
     ip::ip bindip="127.0.0.1"
 end
 
+entity Database extends std::State:
+    """
+        Mongodb database
+    """
+    string name
+    bool purged=false
+end
+
+Database databases [0:] -- [1] MongoDB server
+
+implement Database using std::none
+
 implementation mongoServerFedora for MongoDB:
     pkg = std::Package(host=host, name="mongodb-server", state="installed")
+    std::Package(host=host, name="mongodb", state="installed")
     svc = std::Service(host=host, name="mongod", state="running", onboot=true, requires=[pkg, cfg])
     cfg = std::ConfigFile(host=host, path="/etc/mongod.conf", requires=pkg, reload=true,
                           content=std::template("mongodb/mongodb.conf.tmpl"))
@@ -33,6 +46,7 @@ end
 
 implementation mongoServerEpel for MongoDB:
     pkg = std::Package(host=host, name="mongodb-server", state="installed")
+    std::Package(host=host, name="mongodb", state="installed")
     svc = std::Service(host=host, name="mongod", state="running", onboot=true, requires=[pkg, cfg])
     cfg = std::ConfigFile(host=host, path="/etc/mongodb.conf", requires=pkg, reload=true,
                           content=std::template("mongodb/mongodb_epel.conf.tmpl"))

@@ -1,0 +1,30 @@
+master = "{{ master_server.host.ip }}"
+slaves = []
+{% for s in slave_servers %}
+slaves.push("{{ s.host | std.getfact("ip_address") }}"){% endfor %}
+
+if (rs.conf() == null) {
+    rs.initiate({_id:'nodecellar', members:[{_id:0, host:master+':27017'}]})
+}
+
+cfg = rs.config()
+
+members = {}
+for (var i in cfg["members"]) {
+    var m = cfg["members"][i]
+    members[m["host"]] = m
+}
+
+for (var i in slaves) {
+    var m = slaves[i] + ":27017"
+    if (m in members) {
+    } else {
+        rs.add(m)
+    }
+    delete members[m]
+}
+
+//for (var m in members) {
+//    rs.remove(m+":27017")
+//}
+

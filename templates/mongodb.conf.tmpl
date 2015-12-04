@@ -66,6 +66,12 @@ rest = true
 #mms-interval = <seconds>
 
 # Replication Options
+{% if rs_master %}
+replSet={{ rs_master.name }}
+{% endif %}
+{% if rs_slave %}
+replSet={{ rs_slave.name }}
+{% endif %}
 
 # in replicated mongo databases, specify here whether this is a slave or master
 #slave = true

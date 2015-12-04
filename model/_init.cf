@@ -16,6 +16,18 @@
     Contact: bart@impera.io
 """
 
+entity ReplicaSet:
+    """
+        A mongo replica set
+    """
+    string name="rs01"
+end
+
+ReplicaSet rs_slave [0:1] -- [2:] MongoDB slave_servers
+ReplicaSet rs_master [0:1] -- [1] MongoDB master_server
+
+implement ReplicaSet using mongoServerMaster
+
 entity MongoDB extends ip::services::Server:
     """
         Set up a single mongodb server
@@ -42,6 +54,13 @@ implementation mongoServerFedora for MongoDB:
     svc = std::Service(host=host, name="mongod", state="running", onboot=true, requires=[pkg, cfg])
     cfg = std::ConfigFile(host=host, path="/etc/mongod.conf", requires=pkg, reload=true,
                           content=std::template("mongodb/mongodb.conf.tmpl"))
+end
+
+implementation mongoServerMaster for ReplicaSet:
+    mongo = std::Service[host=master_server.host, name="mongod"]
+    js = std::ConfigFile(host=master_server.host, path="/etc/mongors.js",
+                        content=std::template("mongodb/mongors.js.tmpl"))
+    exec::Run(host=master_server.host, command="mongo /etc/mongors.js", requires=[js, mongo])
 end
 
 implementation mongoServerEpel for MongoDB:

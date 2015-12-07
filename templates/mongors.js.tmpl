@@ -19,12 +19,16 @@ for (var i in slaves) {
     var m = slaves[i] + ":27017"
     if (m in members) {
     } else {
-        rs.add(m)
+        if (m.search("impera") < 0) {
+            rs.add(m)
+        }
     }
     delete members[m]
 }
 
-//for (var m in members) {
-//    rs.remove(m+":27017")
-//}
+for (var m in members) {
+    if (m.search("impera") > 0) {
+        rs.remove(m)
+    }
+}
 

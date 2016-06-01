@@ -17,6 +17,7 @@
 """
 import ip
 import ip::services
+import exec
 
 entity ReplicaSet:
     """

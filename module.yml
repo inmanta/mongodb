@@ -1,8 +1,7 @@
-author: Bart Vanbrabant <bart@impera.io>
+author: Inmanta <code@inmanta.com>
 license: Apache 2.0
 name: mongodb
-source: git@git.impera.io:modules/mongodb
-version: 0.1b1
+version: '0.1'
 requires:
-    std: git@git.impera.io:modules/std, ">= 0.1"
-    ip: git@git.impera.io:modules/ip, ">= 0.1"
+- std
+- ip

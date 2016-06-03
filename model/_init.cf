@@ -54,6 +54,7 @@ implement Database using std::none
 implementation mongoServerFedora for MongoDB:
     pkg = std::Package(host=host, name="mongodb-server", state="installed")
     std::Package(host=host, name="mongodb", state="installed")
+    std::Package(host=host, name="mongo-tools", state="installed")
     svc = std::Service(host=host, name="mongod", state="running", onboot=true, requires=[pkg, cfg])
     cfg = std::ConfigFile(host=host, path="/etc/mongod.conf", requires=pkg, reload=true,
                           content=std::template("mongodb/mongodb.conf.tmpl"))

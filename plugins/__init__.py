@@ -92,7 +92,7 @@ class DatabaseHandler(ResourceHandler):
             os.mkdir(dumpdir)
             
             # download snapshot
-            result = self._agent._client.get_file(content_hash)
+            result = self.get_file(content_hash)
             if result.code != 200:
                 raise Exception("Unable to download snapshot content.")
             

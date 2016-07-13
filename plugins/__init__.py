@@ -64,18 +64,18 @@ class DatabaseHandler(ResourceHandler):
             proc = subprocess.Popen(["/usr/bin/mongodump", "-d", resource.name, "-o", dumpdir],
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             stdout, stderr = proc.communicate()
-            
+
             if proc.returncode > 0:
                 raise Exception("Failed to dump database: out: %s, err: %s" % (stdout, stderr))
-            
+
             proc = subprocess.Popen(["/usr/bin/tar", "-czf", "-", resource.name], cwd=dumpdir,
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            
+
             stdout, stderr = proc.communicate()
-            
+
             if proc.returncode > 0:
                 raise Exception("Failed to dump database: out: %s, err: %s" % (stderr))
-            
+
             return stdout
         finally:
             shutil.rmtree(outdir)
@@ -90,27 +90,27 @@ class DatabaseHandler(ResourceHandler):
         try:
             dumpdir = os.path.join(outdir, "dump")
             os.mkdir(dumpdir)
-            
+
             # download snapshot
             result = self.get_file(content_hash)
-            if result.code != 200:
+            if result is None:
                 raise Exception("Unable to download snapshot content.")
-            
+
             data_file = os.path.join(outdir, "data.tar.gz")
             with open(data_file, "wb+") as fd:
-                fd.write(base64.b64decode(result.result["content"]))
-                
+                fd.write(result)
+
             proc = subprocess.Popen(["tar", "xvzf", data_file], cwd=dumpdir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             stdout, stderr = proc.communicate()
             if proc.returncode > 0:
                 raise Exception("Failed to unzip database snapshot: out: %s, err: %s" % (stdout, stderr))
-            
+
             os.remove(data_file)
-            
+
             proc = subprocess.Popen(["/usr/bin/mongorestore", "--drop", dumpdir],
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             stdout, stderr = proc.communicate()
-            
+
             if proc.returncode > 0:
                 raise Exception("Failed to restore database: out: %s, err: %s" % (stdout, stderr))
         finally:

@@ -34,27 +34,21 @@ class Database(Resource):
     fields = ("name", "purged", "allow_snapshot", "allow_restore", "state_id")
 
 
-@provider("mongodb::Database", name = "mongodb")
+@provider("mongodb::Database", name="mongodb")
 class DatabaseHandler(ResourceHandler):
     """
         A handler to manage database on a mongodb server and snapshot/restore
 
         (this handler currently does nothing because mongo creates its database lazily)
     """
-    def check_resource(self, resource : Database):
-        current = resource.clone()
-        return current
+    def check_resource(self, ctx, resource : Database):
+         current = resource.clone()
+         return current
 
-    def list_changes(self, resource : Database):
-        current = self.check_resource(resource)
-        return self._diff(current, resource)
+    def do_changes(self, ctx, resource : Database, changes) -> bool:
+        pass
 
-    def do_changes(self, resource : Database) -> bool:
-        changed = False
-        changes = self.list_changes(resource)
-        return changed
-
-    def snapshot(self, resource):
+    def snapshot(self, ctx, resource):
         if not os.path.exists("/usr/bin/mongodump"):
             raise Exception("/usr/bin/mongodump does not exist.")
 
@@ -82,7 +76,7 @@ class DatabaseHandler(ResourceHandler):
 
         return None
 
-    def restore(self, resource, content_hash):
+    def restore(self, ctx, resource, content_hash):
         if not os.path.exists("/usr/bin/mongodump"):
             raise Exception("/usr/bin/mongodump does not exist.")
 

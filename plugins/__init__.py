@@ -48,7 +48,7 @@ class DatabaseHandler(ResourceHandler):
     def do_changes(self, ctx, resource : Database, changes) -> bool:
         pass
 
-    def snapshot(self, ctx, resource):
+    def snapshot(self, resource):
         if not os.path.exists("/usr/bin/mongodump"):
             raise Exception("/usr/bin/mongodump does not exist.")
 
@@ -76,7 +76,7 @@ class DatabaseHandler(ResourceHandler):
 
         return None
 
-    def restore(self, ctx, resource, content_hash):
+    def restore(self, resource, content_hash):
         if not os.path.exists("/usr/bin/mongodump"):
             raise Exception("/usr/bin/mongodump does not exist.")
 

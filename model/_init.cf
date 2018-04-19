@@ -1,5 +1,5 @@
 """
-    Copyright 2016 Inmanta
+    Copyright 2018 Inmanta
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 import ip
 import ip::services
 import exec
+import yum
 
 entity ReplicaSet:
     """
@@ -37,6 +38,7 @@ entity MongoDB extends ip::services::Server:
     """
     bool smallfiles=false
     ip::ip bindip="127.0.0.1"
+    bool ce_edition=false
 end
 
 entity Database extends std::State:
@@ -83,6 +85,17 @@ implementation mongoServerUbuntu for MongoDB:
                           content=std::template("mongodb/mongodb_ubuntu.conf.tmpl"))
 end
 
-implement MongoDB using mongoServerFedora when std::familyof(host.os, "fedora")
-implement MongoDB using mongoServerEpel when std::familyof(host.os, "rhel")
-implement MongoDB using mongoServerUbuntu when std::familyof(host.os, "ubuntu")
+implementation ceEditionCentos7 for MongoDB:
+    yum::Repository(host=self.host, name="mongodb-org-3.6", gpgcheck=true, enabled=true,
+                    baseurl="https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/3.6/x86_64/",
+                    gpgkey="https://www.mongodb.org/static/pgp/server-3.6.asc")
+    pkg = std::Package(host=host, name="mongodb-org-server", state="installed")
+    std::Package(host=host, name="mongodb-org", state="installed")
+    svc = std::Service(host=host, name="mongod", state="running", onboot=true, requires=[pkg])
+end
+
+implement MongoDB using mongoServerFedora when std::familyof(host.os, "fedora") and not ce_edition
+implement MongoDB using mongoServerEpel when std::familyof(host.os, "rhel") and not ce_edition
+implement MongoDB using mongoServerUbuntu when std::familyof(host.os, "ubuntu") and not ce_edition
+
+implement MongoDB using ceEditionCentos7 when std::familyof(host.os, "rhel") and ce_edition

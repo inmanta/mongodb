@@ -41,7 +41,7 @@ entity MongoDB extends ip::services::Server:
     bool ce_edition=false
 end
 
-entity Database extends std::State:
+entity Database:
     """
         Mongodb database
     """
